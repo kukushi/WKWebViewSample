@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+        <meta name="viewport"
+              content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"/>
+        <title>Sample</title>
+</head>
+<body>
+<h1>Sample</h1>
+<h3>herf</h3>
+<a target="_blank" href="https://github.com/kukushi">Open Page(_blank)</a>
+</br>
+<a href="https://github.com/kukushi">Open Page</a>
+<h3>alert & confirm & prompt </h3>
+<input type="button" onclick="plainAlert()" value="alert">
+<br>
+<input type="button" onclick="plainConfirm()" value="confirm">
+<br>
+<input type="button" onclick="plainPrompt()" value="prompt">
+<br>
+</body>
+<script type="text/javascript">
+      function plainAlert() {
+            alert("Alert");
+      }
+
+      function plainConfirm() {
+            let result = confirm("Confrim!");
+            alert(result ? "OK" : "Cancel");
+      }
+
+      function plainPrompt() {
+            let text = prompt("I'm a prompt", "Some Text");
+            if (text != null) {
+                  aletr(text)
+            }
+      }
+</script>
+</html>

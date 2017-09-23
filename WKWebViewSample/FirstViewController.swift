@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import WebKit
 
 class FirstViewController: UIViewController {
 
@@ -20,6 +21,9 @@ class FirstViewController: UIViewController {
         // Dispose of any resources that can be recreated.
     }
 
-
+    @IBAction func pushButtonDidClicked(_ sender: Any) {
+        let webViewController = WebViewController()
+        navigationController?.pushViewController(webViewController, animated: true)
+    }
 }
 
