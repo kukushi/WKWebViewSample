@@ -9,6 +9,8 @@
 import UIKit
 import WebKit
 
+let webViewProcessPool = WKProcessPool()
+
 class WebViewController: UIViewController {
 
     var webView: WKWebView!
@@ -16,6 +18,8 @@ class WebViewController: UIViewController {
 
     override func loadView() {
         let webConfiguration = WKWebViewConfiguration()
+        // All webviews use the same process pool to share the cookies
+        webConfiguration.processPool = webViewProcessPool
         webView = WKWebView(frame: .zero, configuration: webConfiguration)
         webView.uiDelegate = self
         webView.navigationDelegate = self
@@ -48,7 +52,7 @@ class WebViewController: UIViewController {
             progressView.leftAnchor.constraint(equalTo: webView.leftAnchor),
             progressView.rightAnchor.constraint(equalTo: webView.rightAnchor),
             progressView.topAnchor.constraint(equalTo: webView.safeAreaLayoutGuide.topAnchor)
-        ])
+            ])
 
         webView.addObserver(self, forKeyPath: "estimatedProgress", options: [.initial, .new], context: nil)
     }
@@ -81,7 +85,6 @@ class WebViewController: UIViewController {
 // MARK: WKUIDelegate
 
 extension WebViewController: WKUIDelegate {
-
     func webView(_ webView: WKWebView, createWebViewWith configuration: WKWebViewConfiguration, for navigationAction: WKNavigationAction, windowFeatures: WKWindowFeatures) -> WKWebView? {
         // REQUIRED: When user click on `target="_blank"` link, just tell the webview to load the request
         if !(navigationAction.targetFrame?.isMainFrame ?? false) {
@@ -140,8 +143,32 @@ extension WebViewController: WKUIDelegate {
 // MARK: WKNavigationDelegate
 
 extension WebViewController: WKNavigationDelegate {
-    func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
-        print(webView.scrollView.contentOffset)
+
+    func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
+        decisionHandler(.allow)
+    }
+
+    func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) {
+        handleFailingURL(error: error)
+    }
+
+    func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
+        handleFailingURL(error: error)
+    }
+
+    private func handleFailingURL(error: Error) {
+        let error = error as NSError
+        // Handling URL Scheme
+        if let failingURLString = error.userInfo[NSURLErrorFailingURLStringErrorKey] as? String {
+            if let failingURL = URL(string: failingURLString) {
+                UIApplication.shared.open(failingURL, options: [:], completionHandler: { (finished) in
+                    if finished {
+                        print("Open \(failingURLString) Success.")
+                        return
+                    }
+                })
+            }
+        }
     }
 }
 
