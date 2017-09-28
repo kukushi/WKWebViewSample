@@ -10,6 +10,7 @@ import UIKit
 import WebKit
 
 let webViewProcessPool = WKProcessPool()
+var webViewEstimatedProgressContext = 0
 
 class WebViewController: UIViewController {
 
@@ -52,19 +53,19 @@ class WebViewController: UIViewController {
             progressView.leftAnchor.constraint(equalTo: webView.leftAnchor),
             progressView.rightAnchor.constraint(equalTo: webView.rightAnchor),
             progressView.topAnchor.constraint(equalTo: webView.safeAreaLayoutGuide.topAnchor)
-            ])
+        ])
 
-        webView.addObserver(self, forKeyPath: "estimatedProgress", options: [.initial, .new], context: nil)
+        webView.addObserver(self, forKeyPath: "estimatedProgress", options: [.initial, .new], context: &webViewEstimatedProgressContext)
     }
 
     deinit {
-        webView.removeObserver(self, forKeyPath: "estimatedProgress", context: nil)
+        webView.removeObserver(self, forKeyPath: "estimatedProgress", context: &webViewEstimatedProgressContext)
     }
 
     // MARK: KVO
 
     override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
-        if keyPath == "estimatedProgress" {
+        if context == &webViewEstimatedProgressContext {
             progressView.setProgress(Float(webView.estimatedProgress), animated: true)
             progressView.alpha = 1
 
@@ -77,6 +78,7 @@ class WebViewController: UIViewController {
                 })
             }
         } else {
+            // Always call super
             super.observeValue(forKeyPath: keyPath, of: object, change: change, context: context)
         }
     }
