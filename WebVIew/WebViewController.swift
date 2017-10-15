@@ -19,7 +19,7 @@ class WebViewController: UIViewController {
 
     override func loadView() {
         let webConfiguration = WKWebViewConfiguration()
-        // All webviews use the same process pool to share the cookies
+        // All web views use the same process pool to share the cookies
         webConfiguration.processPool = webViewProcessPool
         webView = WKWebView(frame: .zero, configuration: webConfiguration)
         webView.uiDelegate = self
